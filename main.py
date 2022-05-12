@@ -2,33 +2,87 @@ from flask import Flask
 from flask import render_template
 from flask import url_for
 from flask import request
-import random
+from flask import session
+from flask import redirect
+from flask import g
+import json
 
 app = Flask("__name__")
+app.secret_key = "somesecretkey"
 
-"""
-class benutzer:
-    def __int__(self, id, benutzername, passwort):
+
+class User:
+    def __init__(self, id, username, password):
         self.id = id
-        self.benutzername = benutzername
-        self.passswort = passwort
+        self.username = username
+        self.password = password
 
     def __repr__(self):
-        return f"<User: {self.benutzername}>"
+        return f"<User: {self.username}>"
 
-benutzer=[]
-benutzer.append(benutzer(id=1, benutzername="Andri", passwort="12345"))
-benutzer.append(benutzer(id=2, benutzername="Selin", passwort="6789"))
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+            sort_keys=True, indent=4)
 
-print(benutzer[1].id)
-"""
+
+def jsonToUser():
+    usersfile = open("data/users.json")
+    usersjson = json.load(usersfile)
+    usersfile.close()
+    users = []
+
+
+    for item in usersjson["Users"]:
+        users.append(User(id=item["id"], username=item["username"], password=item["password"]))
+    return users
+
+
+@app.before_request
+def before_request():
+    if "user_id" in session:
+        users = jsonToUser()
+        user = [x for x in users if x.id == session["user_id"]][0]
+        g.user = user
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        benutzername = request.form["benutzername"]
-        passwort = request.form["passwort"]
+        if request.form.get("registrieren") == "registrieren":
+            usersfile = open("data/users.json")
+            users = json.load(usersfile)
+            usersfile.close()
+            userId = users["Users"][-1]["id"] + 1
+            newUsername = request.form["username"]
+            newPassword = request.form["password"]
+            #if [x for x in users["Users"] if x["username"] == newUsername][0]:
+            #    return redirect(url_for("login"))
+            users["Users"].append({"id": userId, "username": newUsername, "password": newPassword})
+            usersfile = open("data/users.json", "w")
+            json.dump(users, usersfile)
+            print(users)
+        else:
+            users = jsonToUser()
+            session.pop("user_id", None)
+            username = request.form["username"]
+            password = request.form["password"]
+
+            user = [x for x in users if x.username == username][0]
+            if user and user.password == password:
+                session["user_id"] = user.id
+                return redirect(url_for("profile"))
+
+            return redirect(url_for("login"))
+
     return render_template("login.html")
+
+
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+    if not g.user:
+        return redirect("login")
+
+    return render_template("profile.html")
 
 
 @app.route("/startseite")
@@ -38,78 +92,107 @@ def about():
 
 @app.route("/startseite/erfassungzielgewicht")
 def erfassungzielgewicht():
-    return "Was ist dein Zielgewicht?"
+    if request.method.lower() == "get":
+        return render_template("erfassungzielgewicht.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
 
 
-@app.route("/startseite/erfassunggewicht")
+@app.route("/profile/erfassunggewicht")
 def erfassunggewicht():
-    return "Was ist dein heutiges Gewicht?"
+    if request.method.lower() == "get":
+        return render_template("erfassunggewicht.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
 
 
-@app.route("/startseite/erfassunggewicht/fortschritt")
+@app.route("/fortschritt")
 def fortschritt():
-    return "Dies ist dein heutiger Fortschritt!!"
+    if request.method.lower() == "get":
+        return render_template("fortschritt.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
 
 
 @app.route("/startseite/erfassungernaehrung")
 def erfassungernaehrung():
-    return "Was hast du heute gegessen?"
+    if request.method.lower() == "get":
+        return render_template("erfassungernaehrung.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
 
 
 @app.route("/startseite/erfassungernaehrung/ernaehrung")
 def ernaehrung():
-    return "Das ist deine Übersicht zu deiner Ernährung"
-
-
-@app.route("/startseite/erfassungernaehrung/ernaehrung/kalorien")
-def kalorien():
-    return "Übersicht Kalorien"
-
-
-@app.route("/startseite/erfassungernaehrung/ernaehrung/naehrstoffe")
-def naehrstoffe():
-    return "Übersicht Nährstoffe"
+    if request.method.lower() == "get":
+        return render_template("ernaehrung.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
 
 
 @app.route("/startseite/erfassungernaehrung/ernaehrung/makros")
 def makros():
-    return "Übersicht Makros"
+    if request.method.lower() == "get":
+        return render_template("makros.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
+
+
+@app.route("/startseite/erfassungernaehrung/ernaehrung/naehrstoffe")
+def naehrstoffe():
+    if request.method.lower() == "get":
+        return render_template("naehrstoffe.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
+
+
+@app.route("/startseite/erfassungernaehrung/ernaehrung/kalorien")
+def kalorien():
+    if request.method.lower() == "get":
+        return render_template("kalorien.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
 
 
 @app.route("/startseite/erfassungwasser")
 def erfassungwasser():
-    return "erfassung Wasser"
-
-
-@app.route("/startseite/erfassungwasser/wasseruebersicht")
-def wasseruebersicht():
-    return "heute hast du schon xy Wasser getrunken!"
+    if request.method.lower() == "get":
+        return render_template("erfassungwasser.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
 
 
 @app.route("/startseite/erfassungtraining")
 def erfassungtraining():
-    return "erfassung Training"
-
-
-@app.route("/startseite/erfassungtraining/traininguebersicht")
-def traininguebersicht():
-    return "traininguebersicht"
-
-
-@app.route("/startseite/erfassungtagebuch/tagebuch")
-def erfassungtagebuch():
-    return "Wie geht es dir heute?"
-
-
-@app.route("/startseite/erfassungtagebuch/tagebuchuebersicht")
-def tagebuchuebersicht():
-    return "Deine Tagebucheinträge der letzten Zeit."
-
-
-@app.route("/form", methods=["get", "post"])
-def form():
     if request.method.lower() == "get":
-        return render_template("formular.html")
+        return render_template("erfassungtraining.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
+
+
+@app.route("/startseite/erfassungtraining/uebersichttraining")
+def traininguebersicht():
+    if request.method.lower() == "get":
+        return render_template("uebersichttraining.html")
+    if request.methode.lower() == "post":
+        name = request.form["vorname"]
+        return name
+
+
+@app.route("/startseite/tagebuch")
+def erfassungtagebuch():
+    if request.method.lower() == "get":
+        return render_template("tagebuch.html")
     if request.methode.lower() == "post":
         name = request.form["vorname"]
         return name
@@ -117,5 +200,3 @@ def form():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
-    
-

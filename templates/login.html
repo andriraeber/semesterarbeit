@@ -1,19 +1,56 @@
-<!DOCTYPE html>
+<!DOCTYPE html> <!--ganze Seite Quelle: https://github.com/PrettyPrinted/youtube_video_code/blob/master/2020/02/10/Creating%20a%20Login%20Page%20in%20Flask%20Using%20Sessions/flask_session_example/templates/login.html, stand 1.05.22-->
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Login Seite</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='my_style.css') }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+  <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 </head>
+<h1>Willkommen bei der MyBody(Fitnessapp)</h1>
 <body>
-<h1>Hallo {{ name }}!</h1>
-<a>Bitte gib deinen Namen ein: </a>
-<a> href="{{ about_link }}">Alter</a>
-<br><br><br>
-<a>Bitte gib dein Alter ein:</a>
-<a href="{{ about_link }}">Alter</a>
-<br><br><br>
-<a>Bitte gib dein Geschlecht ein:</a>
-<a href="{{ about_link }}">Geschlecht</a>
+  <section class="hero is-info is-fullheight">
+    <div class="hero-body">
+      <div class="container">
+        <div class="columns is-centered">
+          <div class="column is-half">
+            <form method="POST">
+              <div class="field">
+                <label class="label">Username</label>
+                <div class="control has-icons-left has-icons-right">
+                  <input class="input" type="text" name="username" placeholder="Username">
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-user"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label">Password</label>
+                <p class="control has-icons-left">
+                  <input class="input" type="password" name="password" placeholder="Password">
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                </p>
+              </div>
+              <div class="field">
+                <p class="control">
+                  <button type="submit" class="button is-success">
+                    Login
+                  </button>
+                  <button type="submit" class="button is-success" name="registrieren" value = registrieren>
+                    Registrieren
+                  </button>
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</form>
 </body>
 </html>

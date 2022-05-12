@@ -1,35 +1,27 @@
-"""
-from flask import Flask
-from flask import render_template
-from flask import url_for
-from flask import request
-import random
+
+from flask import (
+    Flask,
+    render_template
+)
+
 
 app = Flask("__name__")
 
 
-@app.route("/")
-def hello():
-    names = ["Fabian", "Andri", "Selin", "Maurin", "Jorgi"]
-    name_choice = random.choice(names)
-    about_link = url_for("about")
-    return render_template("index.html", name=name_choice, link=about_link)
+@app.route("/login")
+def login():
+    return render_template("login.html")
 
 
-@app.route("/about")
-def about():
-    return "About Test"
+@app.route("/profile")
+def login():
+    return render_template("profile.html")
 
-
-@app.route("/form", methods=["get", "post"])
-def form():
+@app.route("/login", methods=["GET", "POST"])
+def login():
     if request.method.lower() == "get":
-        return render_template("formular.html")
+        return render_template("login.html")
     if request.methode.lower() == "post":
         name = request.form["vorname"]
         return name
 
-
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
-"""

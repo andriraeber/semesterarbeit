@@ -1,0 +1,46 @@
+<!DOCTYPE html> <!--ganze Seite Quelle: https://github.com/PrettyPrinted/youtube_video_code/blob/master/2020/02/10/Creating%20a%20Login%20Page%20in%20Flask%20Using%20Sessions/flask_session_example/templates/profile.html, stand 1.05.22-->
+<html lang="en">
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+
+<main>
+    <h1 class="visually-hidden">Headers examples</h1>
+
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <svg class="bi me-2" width="40" height="32">
+                    <use xlink:href="#bootstrap"/>
+                </svg>
+                <span class="fs-4">MyBody Fitnessapp</span>
+            </a>
+
+            <ul class="nav nav-pills">
+                <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Home</a></li>
+                <li class="nav-item"><a href="{{url_for('fortschritt')}}" class="nav-link">Gewicht</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Ernährung</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Wasser</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Training</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Tagebuch</a></li>
+            </ul>
+        </header>
+    </div>
+
+    <div class="b-example-divider"></div>
+
+    <h5 class="title">
+        Schön, dass du da bist {{g.user.username}}
+    </h5>
+    <br><br><br>
+    <h6 class="subtitle">
+        <button type="submit">Erfassung Gewicht</button>
+        <button type="submit">Erfassung Ernährung</button>
+        <button type="submit">Erfassung Wasser</button>
+        <br><br><br>
+        <button type="submit">Erfassung Zielgewicht</button>
+        <button type="submit">Erfassung Training</button>
+        <button type="submit">Erfassung Tagebuch</button>
+    </h6>
+    <br><br><br>
+    <a>"Der Zweck des Lebens ist froh zu sein!" Dalai Lama</a>
+
+
