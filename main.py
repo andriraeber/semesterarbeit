@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import Response
 from flask import render_template
 from flask import url_for
 from flask import request
@@ -6,6 +7,12 @@ from flask import session
 from flask import redirect
 from flask import g
 import json
+import sqlite3
+from sqlite3 import Error
+from datetime import datetime
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+import io
 
 app = Flask("__name__")
 app.secret_key = "somesecretkey"
@@ -22,7 +29,7 @@ class User:
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
-            sort_keys=True, indent=4)
+                          sort_keys=True, indent=4)
 
 
 def jsonToUser():
@@ -30,7 +37,6 @@ def jsonToUser():
     usersjson = json.load(usersfile)
     usersfile.close()
     users = []
-
 
     for item in usersjson["Users"]:
         users.append(User(id=item["id"], username=item["username"], password=item["password"]))
@@ -55,7 +61,7 @@ def login():
             userId = users["Users"][-1]["id"] + 1
             newUsername = request.form["username"]
             newPassword = request.form["password"]
-            #if [x for x in users["Users"] if x["username"] == newUsername][0]:
+            # if [x for x in users["Users"] if x["username"] == newUsername][0]:
             #    return redirect(url_for("login"))
             users["Users"].append({"id": userId, "username": newUsername, "password": newPassword})
             usersfile = open("data/users.json", "w")
@@ -90,7 +96,7 @@ def about():
     return render_template("startseite.html")
 
 
-@app.route("/startseite/erfassungzielgewicht")
+@app.route("/erfassungzielgewicht", methods=["GET", "POST"])
 def erfassungzielgewicht():
     if request.method.lower() == "get":
         return render_template("erfassungzielgewicht.html")
@@ -99,13 +105,72 @@ def erfassungzielgewicht():
         return name
 
 
-@app.route("/profile/erfassunggewicht")
+@app.route("/erfassunggewicht", methods=["GET", "POST"])
 def erfassunggewicht():
+    createWeightTable = """ CREATE TABLE IF NOT EXISTS weights(
+                                        id integer PRIMARY KEY,
+                                        time datetime NOT NULL,
+                                        weight string
+                                    ); """
+    conn = createConection("data/gewichtuser.db")
+    if conn is not None:
+        createTable(conn, createWeightTable)
+    else:
+        print("Error: couldn't create table!")
     if request.method.lower() == "get":
         return render_template("erfassunggewicht.html")
-    if request.methode.lower() == "post":
-        name = request.form["vorname"]
-        return name
+    if request.method.lower() == "post":
+        date = request.form["day"] + "." + request.form["month"] + "." + request.form["year"]
+        dateTime = datetime.strptime(date, '%d.%m.%Y')
+        weight = (request.form["Gewicht"], dateTime)
+        insertWeight(conn, weight)
+        weights = selectAllWeigths(conn)
+        return plotPng(weights)
+
+
+def plotPng(weights):  #https://www.tutorialspoint.com/how-to-show-matplotlib-in-flask
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    ys, xs = map(list, zip(*weights))
+    axis.plot(xs, ys)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+def selectAllWeigths(conn):
+    cur = conn.cursor()
+    cur.execute("SELECT time, weight FROM weights")
+    rows = cur.fetchall()
+    results = []
+    for row in rows:
+        results.append(row)
+    return sorted(results, key=lambda x: x[1])
+
+
+def createConection(dbFile):
+    conn = None
+    try:  # https://www.sqlitetutorial.net/sqlite-python/creating-database/
+        conn = sqlite3.connect(dbFile)
+    except Error as e:
+        print(e)
+    return conn
+
+
+def createTable(conn, sqlCommand):  # https://www.sqlitetutorial.net/sqlite-python/creating-database/
+    try:
+        c = conn.cursor()
+        c.execute(sqlCommand)
+    except Error as e:
+        print(e)
+
+
+def insertWeight(conn, weight):
+    sql = "INSERT INTO weights(time,weight) VALUES(?,?)"
+    cur = conn.cursor()
+    cur.execute(sql, weight)
+    conn.commit()
+    return cur.lastrowid
 
 
 @app.route("/fortschritt")
@@ -117,7 +182,7 @@ def fortschritt():
         return name
 
 
-@app.route("/startseite/erfassungernaehrung")
+@app.route("/erfassungernaehrung")
 def erfassungernaehrung():
     if request.method.lower() == "get":
         return render_template("erfassungernaehrung.html")
@@ -126,7 +191,7 @@ def erfassungernaehrung():
         return name
 
 
-@app.route("/startseite/erfassungernaehrung/ernaehrung")
+@app.route("/ernaehrung")
 def ernaehrung():
     if request.method.lower() == "get":
         return render_template("ernaehrung.html")
@@ -135,7 +200,7 @@ def ernaehrung():
         return name
 
 
-@app.route("/startseite/erfassungernaehrung/ernaehrung/makros")
+@app.route("/makros")
 def makros():
     if request.method.lower() == "get":
         return render_template("makros.html")
@@ -144,7 +209,7 @@ def makros():
         return name
 
 
-@app.route("/startseite/erfassungernaehrung/ernaehrung/naehrstoffe")
+@app.route("/naehrstoffe")
 def naehrstoffe():
     if request.method.lower() == "get":
         return render_template("naehrstoffe.html")
@@ -153,7 +218,7 @@ def naehrstoffe():
         return name
 
 
-@app.route("/startseite/erfassungernaehrung/ernaehrung/kalorien")
+@app.route("/kalorien")
 def kalorien():
     if request.method.lower() == "get":
         return render_template("kalorien.html")
@@ -162,7 +227,7 @@ def kalorien():
         return name
 
 
-@app.route("/startseite/erfassungwasser")
+@app.route("/erfassungwasser")
 def erfassungwasser():
     if request.method.lower() == "get":
         return render_template("erfassungwasser.html")
@@ -171,7 +236,7 @@ def erfassungwasser():
         return name
 
 
-@app.route("/startseite/erfassungtraining")
+@app.route("/erfassungtraining")
 def erfassungtraining():
     if request.method.lower() == "get":
         return render_template("erfassungtraining.html")
@@ -180,7 +245,7 @@ def erfassungtraining():
         return name
 
 
-@app.route("/startseite/erfassungtraining/uebersichttraining")
+@app.route("/uebersichttraining")
 def traininguebersicht():
     if request.method.lower() == "get":
         return render_template("uebersichttraining.html")
@@ -189,8 +254,8 @@ def traininguebersicht():
         return name
 
 
-@app.route("/startseite/tagebuch")
-def erfassungtagebuch():
+@app.route("/tagebuch")
+def tagebuch():
     if request.method.lower() == "get":
         return render_template("tagebuch.html")
     if request.methode.lower() == "post":
