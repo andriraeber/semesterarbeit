@@ -13,16 +13,20 @@ from datetime import datetime
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import io
+import plotly.express as px
+from plotly.offline import plot
+import plotly.graph_objects as go
 
 app = Flask("__name__")
 app.secret_key = "somesecretkey"
 
 
 class User:
-    def __init__(self, id, username, password):
+    def __init__(self, id, username, password, targetWeight):
         self.id = id
         self.username = username
         self.password = password
+        self.targetWeight = targetWeight
 
     def __repr__(self):
         return f"<User: {self.username}>"
@@ -39,7 +43,8 @@ def jsonToUser():
     users = []
 
     for item in usersjson["Users"]:
-        users.append(User(id=item["id"], username=item["username"], password=item["password"]))
+        users.append(User(id=item["id"], username=item["username"], password=item["password"],
+                          targetWeight=item["targetWeight"]))
     return users
 
 
@@ -61,9 +66,10 @@ def login():
             userId = users["Users"][-1]["id"] + 1
             newUsername = request.form["username"]
             newPassword = request.form["password"]
+            targetWeight = request.form["targetWeight"]
             # if [x for x in users["Users"] if x["username"] == newUsername][0]:
             #    return redirect(url_for("login"))
-            users["Users"].append({"id": userId, "username": newUsername, "password": newPassword})
+            users["Users"].append({"id": userId, "username": newUsername, "password": newPassword, "targetWeight": targetWeight})
             usersfile = open("data/users.json", "w")
             json.dump(users, usersfile)
             print(users)
@@ -105,47 +111,15 @@ def erfassungzielgewicht():
         return name
 
 
-@app.route("/erfassunggewicht", methods=["GET", "POST"])
-def erfassunggewicht():
-    createWeightTable = """ CREATE TABLE IF NOT EXISTS weights(
-                                        id integer PRIMARY KEY,
-                                        time datetime NOT NULL,
-                                        weight string
-                                    ); """
-    conn = createConection("data/gewichtuser.db")
-    if conn is not None:
-        createTable(conn, createWeightTable)
-    else:
-        print("Error: couldn't create table!")
-    if request.method.lower() == "get":
-        return render_template("erfassunggewicht.html")
-    if request.method.lower() == "post":
-        date = request.form["day"] + "." + request.form["month"] + "." + request.form["year"]
-        dateTime = datetime.strptime(date, '%d.%m.%Y')
-        weight = (request.form["Gewicht"], dateTime)
-        insertWeight(conn, weight)
-        weights = selectAllWeigths(conn)
-        return plotPng(weights)
-
-
-def plotPng(weights):  #https://www.tutorialspoint.com/how-to-show-matplotlib-in-flask
-    fig = Figure()
-    axis = fig.add_subplot(1, 1, 1)
-    ys, xs = map(list, zip(*weights))
-    axis.plot(xs, ys)
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype='image/png')
-
-
-def selectAllWeigths(conn):
+def selectAllWeigths(conn):  # gibt uns Gewichte sortiert nach Datum zurück
     cur = conn.cursor()
     cur.execute("SELECT time, weight FROM weights")
     rows = cur.fetchall()
     results = []
     for row in rows:
         results.append(row)
-    return sorted(results, key=lambda x: x[1])
+    return list(zip(*sorted(results,
+                            key=lambda x: x[1])))  # nimmt tuples auseinander und schreibt die elemente in je eine Liste
 
 
 def createConection(dbFile):
@@ -173,19 +147,52 @@ def insertWeight(conn, weight):
     return cur.lastrowid
 
 
-@app.route("/fortschritt")
+def viz(data):
+    fig = px.line(x=data[1], y=data[0], labels={"x": "date", "y": "weight"}, markers=True, title="weight")
+    fig.update_traces(textposition="bottom right")
+    users = jsonToUser()
+    targetWeight = [x for x in users if x.username == g.user.username][0].targetWeight
+    fig.add_trace(
+        go.Scatter(
+            x=[data[1][0], data[1][-1]],
+            # dubble linked zwei listen wenn wir bei -1 sind sind wir beim letzten Element (-1 holt uns letztes ELement)
+            y=[targetWeight, targetWeight],
+            mode="lines",
+            line=go.scatter.Line(color="gray"),
+            showlegend=False)
+    )
+
+    div = plot(fig, output_type="div")
+    return div
+
+
+@app.route("/fortschritt", methods=["GET", "POST"])
 def fortschritt():
-    if request.method.lower() == "get":
-        return render_template("fortschritt.html")
-    if request.methode.lower() == "post":
-        name = request.form["vorname"]
-        return name
+    createWeightTable = """ CREATE TABLE IF NOT EXISTS weights(
+                                        id integer PRIMARY KEY,
+                                        time datetime NOT NULL,
+                                        weight string
+                                    ); """
+    conn = createConection("data/gewichtuser.db")
+    if conn is not None:
+        createTable(conn, createWeightTable)
+    else:
+        print("Error: couldn't create table!")
+    if request.method.lower() == "post":
+        date = request.form["day"] + "." + request.form["month"] + "." + request.form["year"]
+        dateTime = datetime.strptime(date, '%d.%m.%Y')
+        weight = (request.form["Gewicht"], dateTime)
+        insertWeight(conn, weight)
+    weights = selectAllWeigths(conn)
+    div = viz(weights)
+    return render_template('fortschritt.html', name=g.user.username, viz_div=div)
 
 
 @app.route("/erfassungernaehrung")
 def erfassungernaehrung():
     if request.method.lower() == "get":
-        return render_template("erfassungernaehrung.html")
+        print("OKAY")
+        return render_template("nahrung.html")
     if request.methode.lower() == "post":
         name = request.form["vorname"]
         return name
@@ -200,34 +207,13 @@ def ernaehrung():
         return name
 
 
-@app.route("/makros")
-def makros():
-    if request.method.lower() == "get":
-        return render_template("makros.html")
-    if request.methode.lower() == "post":
-        name = request.form["vorname"]
-        return name
+def generate_chart(names, values):  # https://plotly.com/python/pie-charts/
+    df = px.data.tips()  # replace with your own data source
+    fig = px.pie(df, values=values, names=names, hole=.3)
+    return fig
 
 
-@app.route("/naehrstoffe")
-def naehrstoffe():
-    if request.method.lower() == "get":
-        return render_template("naehrstoffe.html")
-    if request.methode.lower() == "post":
-        name = request.form["vorname"]
-        return name
-
-
-@app.route("/kalorien")
-def kalorien():
-    if request.method.lower() == "get":
-        return render_template("kalorien.html")
-    if request.methode.lower() == "post":
-        name = request.form["vorname"]
-        return name
-
-
-@app.route("/erfassungwasser")
+@app.route("/erfassungwasser")  # https://plotly.com/python/pie-charts/
 def erfassungwasser():
     if request.method.lower() == "get":
         return render_template("erfassungwasser.html")
@@ -240,15 +226,6 @@ def erfassungwasser():
 def erfassungtraining():
     if request.method.lower() == "get":
         return render_template("erfassungtraining.html")
-    if request.methode.lower() == "post":
-        name = request.form["vorname"]
-        return name
-
-
-@app.route("/uebersichttraining")
-def traininguebersicht():
-    if request.method.lower() == "get":
-        return render_template("uebersichttraining.html")
     if request.methode.lower() == "post":
         name = request.form["vorname"]
         return name

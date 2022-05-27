@@ -1,45 +1,79 @@
-<!DOCTYPE html>
+<!DOCTYPE html> <!--ganze Seite Quelle:https://getbootstrap.com/docs/5.1/examples/headers/, stand 12.05.22-->
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Erfassung Training</title>
-</head>
-<h1>Erfassung Training</h1>
-<body>
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
 
-<a>Ausdauer</a>
-<br>
-<select> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
-  <option>Joggen</option>
-  <option>Schwimmen</option>
-  <option>Radfahren</option>
-  <option>Andrere</option>
-</select>
+<main>
+    <h1 class="visually-hidden">Headers examples</h1>
 
-<br><br><br>
-<a>Kraft</a>
-<br>
-<select> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
-  <option>Gym</option>
-  <option>Cross Fit</option>
-  <option>Olimpic Lifting</option>
-  <option>Andrere</option>
-</select>
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <svg class="bi me-2" width="40" height="32">
+                    <use xlink:href="#bootstrap"/>
+                </svg>
+                <span class="fs-4">MyBody Fitnessapp</span>
+            </a>
 
-<br><br><br>
-<a>Zeit</a>
-<br>
-<select> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
-  <option>30 min</option>
-  <option>60 min</option>
-  <option>90 min</option>
-  <option>120min <</option>
-</select>
+            <ul class="nav nav-pills">
+                <li class="nav-item"><a href="{{url_for('profile')}}" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="{{url_for('fortschritt')}}" class="nav-link">Gewicht</a></li>
+                <li class="nav-item"><a href="{{url_for('ernaehrung')}}" class="nav-link">Ernährung</a></li>
+                <li class="nav-item"><a href={{url_for('erfassungwasser')}} class="nav-link">Wasser</a></li>
+                <li class="nav-item"><a href={{url_for('erfassungtraining')}} class="nav-link active"
+                                        aria-current="page">Training</a></li>
+                <li class="nav-item"><a href={{url_for('tagebuch')}} class="nav-link">Tagebuch</a></li>
+            </ul>
+        </header>
+        <h1>Erfassung Training</h1>
+        <body>
 
-<br><br><br>
+        <a>Ausdauer</a>
+        <br>
+        <select> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
+            <option>Joggen</option>
+            <option>Schwimmen</option>
+            <option>Radfahren</option>
+            <option>Andrere</option>
+        </select>
 
-<button type="submit">bestätigen</button>
+        <br><br><br>
+        <a>Kraft</a>
+        <br>
+        <select> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
+            <option>Gym</option>
+            <option>Cross Fit</option>
+            <option>Olimpic Lifting</option>
+            <option>Andrere</option>
+        </select>
+
+        <br><br><br>
+        <a>Zeit</a>
+        <br>
+        <select> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
+            <option>30 min</option>
+            <option>60 min</option>
+            <option>90 min</option>
+            <option>120min <</option>
+        </select>
+
+        <br><br><br>
+
+        <button type="submit">bestätigen</button>
+<br><br><br><br><br><br>
+        <h1>Übersicht Training</h1>
 
 
-</body>
+        <select> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
+
+            <option>Heute</option>
+            <option>7 Tage</option>
+            <option>4 Wochen</option>
+            <option>6 Monate</option>
+            <option>1 Jahr</option>
+
+        </select>
+
+
+
+        </body>
 </html>

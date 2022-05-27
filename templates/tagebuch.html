@@ -1,9 +1,29 @@
-<!DOCTYPE html>
+<!DOCTYPE html> <!--ganze Seite Quelle:https://getbootstrap.com/docs/5.1/examples/headers/, stand 12.05.22-->
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Tagebuch</title>
-</head>
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+
+<main>
+    <h1 class="visually-hidden">Headers examples</h1>
+
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <svg class="bi me-2" width="40" height="32">
+                    <use xlink:href="#bootstrap"/>
+                </svg>
+                <span class="fs-4" >MyBody Fitnessapp</span>
+            </a>
+
+            <ul class="nav nav-pills">
+                <li class="nav-item"><a href="{{url_for('profile')}}" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="{{url_for('fortschritt')}}" class="nav-link">Gewicht</a></li>
+                <li class="nav-item"><a href="{{url_for('ernaehrung')}}" class="nav-link">Ernährung</a></li>
+                <li class="nav-item"><a href={{url_for('erfassungwasser')}} class="nav-link">Wasser</a></li>
+                <li class="nav-item"><a href={{url_for('erfassungtraining')}} class="nav-link">Training</a></li>
+                <li class="nav-item"><a href={{url_for('tagebuch')}}  class="nav-link active"
+                                        aria-current="page">Tagebuch</a></li>
+            </ul>
+        </header>
 <h1>Tagebuch</h1>
 <body>
 <textarea cols="50" rows="10">Wie geht es dir heute?</textarea> <!--https://wiki.selfhtml.org/wiki/HTML/Elemente/textarea -->

@@ -11,7 +11,7 @@
                 <svg class="bi me-2" width="40" height="32">
                     <use xlink:href="#bootstrap"/>
                 </svg>
-                <span class="fs-4">MyBody Fitnessapp</span>
+                <span class="fs-4" >MyBody Fitnessapp</span>
             </a>
 
             <ul class="nav nav-pills">
@@ -20,28 +20,32 @@
                 <li class="nav-item"><a href="{{url_for('fortschritt')}}" class="nav-link">Gewicht</a></li>
                 <li class="nav-item"><a href="{{url_for('ernaehrung')}}" class="nav-link">Ernährung</a></li>
                 <li class="nav-item"><a href={{url_for('erfassungwasser')}} class="nav-link">Wasser</a></li>
-                <li class="nav-item"><a href={{url_for('traininguebersicht')}} class="nav-link">Training</a></li>
+                <li class="nav-item"><a href={{url_for('erfassungtraining')}} class="nav-link">Training</a></li>
                 <li class="nav-item"><a href={{url_for('tagebuch')}} class="nav-link">Tagebuch</a></li>
             </ul>
         </header>
+
+
+            <h5 class="title">
+                Schön, dass du da bist {{g.user.username}}
+            </h5>
+            <br><br><br>
+            <h6>
+                <a class="btn btn-secondary" href="{{url_for('fortschritt')}}" role="button">Gewichtserfassung</a>
+                <a class="btn btn-secondary" href="{{url_for('erfassungernaehrung')}}" role="button">Erfassung
+                    Ernährung</a>
+                <a class="btn btn-secondary" href="{{url_for('erfassungwasser')}}" role="button">Erfassung Wasser</a>
+                <br><br><br>
+                <a class="btn btn-secondary" href="{{url_for('fortschritt')}}" role="button">Erfassung
+                    Zielgewicht</a>
+                <a class="btn btn-secondary" href="{{url_for('erfassungtraining')}}" role="button">Erfassung
+                    Training</a>
+                <a class="btn btn-secondary" href="{{url_for('tagebuch')}}" role="button">Erfassung Tagebuch</a>
+            </h6>
+            <br><br><br>
+            <a>Der Zweck des Lebens ist froh zu sein!</a>
+
     </div>
 
     <div class="b-example-divider"></div>
-
-    <h5 class="title">
-        Schön, dass du da bist {{g.user.username}}
-    </h5>
-    <br><br><br>
-    <h6>
-        <a class="btn btn-secondary" href="{{url_for('erfassunggewicht')}}" role="button">Gewichtserfassung</a>
-        <a class="btn btn-secondary" href="{{url_for('erfassungernaehrung')}}" role="button">Erfassung Ernährung</a>
-        <a class="btn btn-secondary" href="{{url_for('erfassungwasser')}}" role="button">Erfassung Wasser</a>
-        <br><br><br>
-        <a class="btn btn-secondary" href="{{url_for('erfassungzielgewicht')}}" role="button">Erfassung Zielgewicht</a>
-        <a class="btn btn-secondary" href="{{url_for('erfassungtraining')}}" role="button">Erfassung Training</a>
-        <a class="btn btn-secondary" href="{{url_for('tagebuch')}}" role="button">Erfassung Tagebuch</a>
-    </h6>
-    <br><br><br>
-    <a>Der Zweck des Lebens ist froh zu sein!</a>
-
 

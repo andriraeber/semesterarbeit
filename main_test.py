@@ -1,27 +1,34 @@
+from dash import Dash, dcc, html, Input, Output
+import plotly.express as px
 
-from flask import (
-    Flask,
-    render_template
-)
-
-
-app = Flask("__name__")
+app = Dash(__name__)
 
 
-@app.route("/login")
-def login():
-    return render_template("login.html")
+app.layout = html.Div([
+    html.H4('Analysis of the restaurant sales'),
+    dcc.Graph(id="pie-charts-x-graph"),
+    html.P("Names:"),
+    dcc.Dropdown(id='pie-charts-x-names',
+        options=['smoker', 'day', 'time', 'sex'],
+        value='day', clearable=False
+    ),
+    html.P("Values:"),
+    dcc.Dropdown(id='pie-charts-x-values',
+        options=['total_bill', 'tip', 'size'],
+        value='total_bill', clearable=False
+    ),
+])
 
 
-@app.route("/profile")
-def login():
-    return render_template("profile.html")
+@app.callback(
+    Output("pie-charts-x-graph", "figure"),
+    Input("pie-charts-x-names", "value"),
+    Input("pie-charts-x-values", "value"))
+def generate_chart(names, values):
+    df = px.data.tips() # replace with your own data source
+    fig = px.pie(df, values=values, names=names, hole=.3)
+    return fig
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method.lower() == "get":
-        return render_template("login.html")
-    if request.methode.lower() == "post":
-        name = request.form["vorname"]
-        return name
 
+if __name__ == "__main__":
+    app.run_server(debug=True)

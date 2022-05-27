@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 </head>
-<h1>Willkommen bei der MyBody(Fitnessapp)</h1>
 <body>
 <section class="hero is-info is-fullheight">
     <div class="hero-body">
@@ -17,6 +16,8 @@
                 <div class="column is-half">
                     <form method="POST">
                         <div class="field">
+                            <h1 class="label">Willkommen bei der MyBody(Fitnessapp)</h1>
+                            <br><br>
                             <label class="label">Username</label>
                             <div class="control has-icons-left has-icons-right">
                                 <input class="input" type="text" name="username" placeholder="Username">
@@ -29,6 +30,15 @@
                             <label class="label">Password</label>
                             <p class="control has-icons-left">
                                 <input class="input" type="password" name="password" placeholder="Password">
+                                <span class="icon is-small is-left">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                            </p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Zielgewicht</label>
+                            <p class="control has-icons-left">
+                                <input class="input" type="nuber" name="targetWeight" placeholder="Zielgewicht">
                                 <span class="icon is-small is-left">
                     <i class="fas fa-lock"></i>
                   </span>
