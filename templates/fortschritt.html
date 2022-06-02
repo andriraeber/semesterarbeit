@@ -32,15 +32,18 @@
         <a>Zeitspanne:</a>
 
         <br><br>
-        <select> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
+        <form action="/filterData" method="post">
+            <select name="zeitspanne"> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
 
-            <option>Heute</option>
-            <option>7 Tage</option>
-            <option>4 Wochen</option>
-            <option>6 Monate</option>
-            <option>1 Jahr</option>
+                <option>Heute</option>
+                <option>7 Tage</option>
+                <option>4 Wochen</option>
+                <option>6 Monate</option>
+                <option>1 Jahr</option>
 
-        </select>
+            </select>
+            <button type="submit">Auswählen</button>
+        </form>
         <br><br><br>
         {{ viz_div|safe }}
         <br><br><br>
@@ -53,6 +56,7 @@
         </h5>
         <br>
         <form method="POST">
+
             <input type="text" name="Gewicht" placeholder="Gewicht in kg">
 
 
@@ -220,7 +224,7 @@
             </select>
             <br><br><br>
 
-
+            <button type="submit">speichern</button>
 
             <img src="{{url}}">
 

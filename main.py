@@ -16,6 +16,7 @@ import io
 import plotly.express as px
 from plotly.offline import plot
 import plotly.graph_objects as go
+from datetime import date, timedelta
 
 app = Flask("__name__")
 app.secret_key = "somesecretkey"
@@ -69,7 +70,8 @@ def login():
             targetWeight = request.form["targetWeight"]
             # if [x for x in users["Users"] if x["username"] == newUsername][0]:
             #    return redirect(url_for("login"))
-            users["Users"].append({"id": userId, "username": newUsername, "password": newPassword, "targetWeight": targetWeight})
+            users["Users"].append(
+                {"id": userId, "username": newUsername, "password": newPassword, "targetWeight": targetWeight})
             usersfile = open("data/users.json", "w")
             json.dump(users, usersfile)
             print(users)
@@ -145,6 +147,28 @@ def insertWeight(conn, weight):
     cur.execute(sql, weight)
     conn.commit()
     return cur.lastrowid
+
+
+@app.route("/filterData", methods=["GET", "POST"])
+def filterData():
+    filter = request.form["zeitspanne"][0]
+    conn = createConection("data/gewichtuser.db")
+    weights = selectAllWeigths(conn)
+    switcher = {
+        "H": date.today(),
+        "7": date.today() - timedelta(days=7),
+        "4": date.today() - timedelta(days=30),
+        "6": date.today() - timedelta(days=182),
+        "1": date.today() - timedelta(days=365)
+    }
+    filteredWeights = []
+    for x in range(0, len(weights[1])):
+        item = weights[1][x]
+        if datetime.strptime(item, '%y-%m-%d') >= switcher[filter]:
+            filteredWeights[0].append(weights[0][x])
+            filteredWeights[1].append(item)
+    div = viz(filteredWeights)
+    return render_template('fortschritt.html', name=g.user.username, viz_div=div)
 
 
 def viz(data):
