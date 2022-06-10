@@ -140,7 +140,7 @@ def insertWeight(conn, weight):
 def filterData():
     filter = request.form["zeitspanne"][0]
     conn = createConection("data/gewichtuser.db")
-    weights = selectAllWeigths(conn)
+    weights = selectAllWeights(conn)
     switcher = {
         "H": date.today(),
         "7": date.today() - timedelta(days=7),
@@ -148,10 +148,10 @@ def filterData():
         "6": date.today() - timedelta(days=182),
         "1": date.today() - timedelta(days=365)
     }
-    filteredWeights = []
+    filteredWeights = [[], []]
     for x in range(0, len(weights[1])):
         item = weights[1][x]
-        if datetime.strptime(item, '%Y-%m-%d') >= switcher[filter]:
+        if datetime.strptime(item, '%Y-%m-%d %H:%M:%S').date() >= switcher[filter]:
             filteredWeights[0].append(weights[0][x])
             filteredWeights[1].append(item)
     div = viz(filteredWeights)
@@ -191,7 +191,7 @@ def fortschritt():  # erstellen einer neuen Table , falls noch keine vorhanden u
         print("Error: couldn't create table!")
     if request.method.lower() == "post":
         date = request.form["day"] + "." + request.form["month"] + "." + request.form["year"]
-        dateTime = datetime.strptime(date, '%Y.%m.%d')
+        dateTime = datetime.strptime(date, '%d.%m.%Y')
         weight = (request.form["Gewicht"], dateTime)
         insertWeight(conn, weight)
     weights = selectAllWeights(conn)
