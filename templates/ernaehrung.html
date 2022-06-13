@@ -19,22 +19,25 @@
                 <li class="nav-item"><a href="{{url_for('fortschritt')}}" class="nav-link">Gewicht</a></li>
                 <li class="nav-item"><a href="{{url_for('ernaehrung')}}" class="nav-link active"
                                         aria-current="page">Ernährung</a></li>
-                <li class="nav-item"><a href={{url_for('erfassungwasser')}} class="nav-link">Wasser</a></li>
-                <li class="nav-item"><a href={{url_for('erfassungtraining')}} class="nav-link">Training</a></li>
-                <li class="nav-item"><a href={{url_for('tagebuch')}} class="nav-link">Tagebuch</a></li>
             </ul>
         </header>
         <body>
 
         <form method="POST">
 
-            <input type="text" name="Alter" placeholder="Wie alt bist du?">
-            <input type="text" name="Geschlecht" placeholder="weiblich/männlich">
-            <input type="text" name="Gewicht" placeholder="Wie alt bist du?">
-            <input type="text" name="Grösse" placeholder="Wie gross bist du in cm?">
+            <input type="text" name="age" placeholder="Wie alt bist du?">
+            <input type="text" name="gender" placeholder="male or female">
+            <input type="text" name="weight" placeholder="Wie viele Kg bist du?">
+            <input type="text" name="height" placeholder="Wie gross bist du in cm?">
 
+            {{ bmr_result }}
+
+             <input type="text" name="activity" placeholder="What is your activity level:none, light, moderate, heavy, or extreme?">
+
+            <br><br><br>
+            <button type="submit">speichern</button>
         </form>
-        <button type="submit">speichern</button>
-
         </body>
+    </div>
+</main>
 </html>
