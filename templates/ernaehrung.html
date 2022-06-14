@@ -25,17 +25,50 @@
 
         <form method="POST">
 
-            <input type="text" name="age" placeholder="Wie alt bist du?">
-            <input type="text" name="gender" placeholder="male or female">
-            <input type="text" name="weight" placeholder="Wie viele Kg bist du?">
-            <input type="text" name="height" placeholder="Wie gross bist du in cm?">
+            <input type="text" name="age" placeholder="Wie alt bist du?" value="{{ age }}">
+            <select name="gender"> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
 
-            {{ bmr_result }}
+                <option{% if gender == 'male' %} selected{% endif %}>male</option>
+                <option{% if gender == 'female' %} selected{% endif %}>female</option>
 
-             <input type="text" name="activity" placeholder="What is your activity level:none, light, moderate, heavy, or extreme?">
-
+            </select>
+            <input type="text" name="weight" placeholder="Wie viele Kg bist du?" value="{{ weight }}">
+            <input type="text" name="height" placeholder="Wie gross bist du in cm?" value="{{ height }}">
             <br><br><br>
+            <a>Dein Grundumsatz (BMR) in Kalorien pro Tag, beträgt:</a> {{ bmr }}
+            <br><br>
             <button type="submit">speichern</button>
+            <br><br><br>
+            <a>Was ist dein Aktivitätslevel? none, light, moderate, heavy, or extreme?"<a>
+                <select name="activity"> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
+
+                    <option{% if activity_level == 'none' %} selected{% endif %}>none</option>
+                    <option{% if activity_level == 'light' %} selected{% endif %}>light</option>
+                    <option{% if activity_level == 'moderate' %} selected{% endif %}>moderate</option>
+                    <option{% if activity_level == 'heavy' %} selected{% endif %}>heavy</option>
+                    <option{% if activity_level == 'extreme' %} selected{% endif %}>extreme</option>
+
+                </select>
+                <br><br><br>
+                <a>Dein Grundumsatz (BMR) inklusive deiner Aktivität in Kalorien pro Tag, beträgt:</a> {{
+                calculated_activity }}
+                <br><br>
+                <button type="submit">speichern</button>
+                <br><br><br>
+                <a>Do you want to lose, maintain, or gain weight?"</a>
+                <select name="goals">
+                    <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
+
+                    <option{% if goals == 'lose' %} selected{% endif %}>lose</option>
+                    <option{% if goals == 'maintain' %} selected{% endif %}>maintain</option>
+                    <option{% if goals == 'gain' %} selected{% endif %}>gain</option>
+
+                </select>
+
+                <br><br><br>
+                <a>Um dein Ziel zu erreichen beträgt dein Kalorienumsatz:</a> {{ calories }}
+                <br><br>
+                <button type="submit">speichern</button>
         </form>
         </body>
     </div>

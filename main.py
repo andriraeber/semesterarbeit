@@ -91,16 +91,9 @@ def profile():  # Aufrufen der Profielseite falls durch Falscheingabe nicht wied
     return render_template("profile.html")
 
 
-@app.route("/kalorienrechner",
-           methods=["GET", "POST"])  # Name stimmt noch nicht, führ in die Irre. hier wird das Zielgewixht definiert.
-def erfassungzielgewicht():
-    if request.method.lower() == "get":
-        return render_template("erfassungzielgewicht.html")
-
-
-def selectAllWeights(conn):  # gibt uns Gewichte sortiert nach Datum zurück. Conn = Reihe
+def selectAllWeights(conn, user_id):  # gibt uns Gewichte sortiert nach Datum zurück. Conn = Reihe
     cur = conn.cursor()
-    cur.execute("SELECT time, weight FROM weights")
+    cur.execute("SELECT time, weight FROM weights WHERE user_id = ?", (user_id,))
     rows = cur.fetchall()
     results = []
     for row in rows:
@@ -127,19 +120,22 @@ def createTable(conn,
         print(e)
 
 
-def insertWeight(conn, weight):  # Was passiert da Tobi? Erzeugt eine Verlinkung mit dem dbFile? Versteh ich nicht.
-    sql = "INSERT INTO weights(time,weight) VALUES(?,?)"
+def insertWeight(conn, user_id, time, weight):  # Was passiert da Tobi? Erzeugt eine Verlinkung mit dem dbFile? Versteh ich nicht.
+    sql = "INSERT INTO weights(user_id, time, weight) VALUES(?,?,?)"
     cur = conn.cursor()
-    cur.execute(sql, weight)  # sql wie funktioniert dies genau?
+    cur.execute(sql, (user_id, time, weight)) # sql wie funktioniert dies genau?
     conn.commit()
     return cur.lastrowid
 
 
-@app.route("/filterData", methods=["GET", "POST"])  #
-def filterData():
-    filter = request.form["zeitspanne"][0]  # defienren des Filters, aus dem Form Zeitspanne. Stimmt das Tobi?
+def renderFortschritt():
+    if "zeitspanne" in request.form:
+        zeitspanne = request.form["zeitspanne"][0]  #defienren des Filters, aus dem Form Zeitspanne. Stimmt das Tobi?
+    else:
+        zeitspanne = "H"
     conn = createConection("data/gewichtuser.db")
-    weights = selectAllWeights(conn)
+    weights = selectAllWeights(conn, session["user_id"])
+    print(weights)
     switcher = {  # Definition des Switchers(Auswahlfilter) inklusive Rechnung.
         "H": date.today(),
         "7": date.today() - timedelta(days=7),
@@ -147,16 +143,19 @@ def filterData():
         "6": date.today() - timedelta(days=182),
         "1": date.today() - timedelta(days=365)
     }
-    filteredWeights = [[], []]  # Filter in der zewi Listen in der Liste
-    for x in range(0, len(weights[1])):
-        item = weights[1][x]
-        if datetime.strptime(item, '%Y-%m-%d %H:%M:%S').date() >= switcher[
-            filter]:  # hinter Y m d muss man noch die Zeitangeben und das ganze als .date() definieren Tobi wie erkläre ich .date()
-            filteredWeights[0].append(weights[0][x])
-            filteredWeights[1].append(item)
-    div = viz(
-        filteredWeights)  # was ist ein div und viz genau Tobi? Viz = visualisierung und div konnte ich nicht herausfinden.
-    return render_template('fortschritt.html', name=g.user.username, viz_div=div)
+    filteredWeights = [[], []]  # Filter in der zwei Listen in der Liste
+    if len(weights) >= 2:
+        for x in range(0, len(weights[1])):
+            item = weights[0][x]
+            if datetime.strptime(item, '%Y-%m-%d %H:%M:%S').date() >= switcher[
+                zeitspanne]:  # hinter Y m d muss man noch die Zeitangeben und das ganze als .date() definieren Tobi wie erkläre ich .date()
+                filteredWeights[0].append(weights[1][x])
+                filteredWeights[1].append(item)
+    if len(filteredWeights[0]) >= 2:
+        div = viz(filteredWeights)  # was ist ein div und viz genau Tobi? Viz = visualisierung und div konnte ich nicht herausfinden.
+    else:
+        div = "<div></div>"
+    return render_template('fortschritt.html', name=g.user.username, viz_div=div, zeitspanne=zeitspanne)
 
 
 def viz(data):
@@ -182,6 +181,7 @@ def viz(data):
 def fortschritt():  # erstellen einer neuen Table , falls noch keine vorhanden und abspeichern des Eintrages als string
     createWeightTable = """ CREATE TABLE IF NOT EXISTS weights(
                                         id integer PRIMARY KEY,
+                                        user_id integer NOT NULL,
                                         time datetime NOT NULL,
                                         weight string
                                     ); """
@@ -190,26 +190,26 @@ def fortschritt():  # erstellen einer neuen Table , falls noch keine vorhanden u
         createTable(conn, createWeightTable)
     else:
         print("Error: couldn't create table!")
-    if request.method.lower() == "post":
+    if request.method.lower() == "post" and "save" in request.form:
         date = request.form["day"] + "." + request.form["month"] + "." + request.form["year"]
         dateTime = datetime.strptime(date, '%d.%m.%Y')
-        weight = (request.form["Gewicht"], dateTime)
-        insertWeight(conn, weight)
-    weights = selectAllWeights(conn)
-    div = viz(weights)
-    return render_template('fortschritt.html', name=g.user.username, viz_div=div)
+        weight = request.form["Gewicht"]
+        insertWeight(conn, session["user_id"], dateTime, weight)
+    return renderFortschritt()
 
 
 @app.route("/ernaehrung", methods=["GET", "POST"])
 def ernaehrung():
     if request.method == "POST":
+        print(request.form)
         calories = Calories(
             session["user_id"],
             int(request.form['age']),
             request.form['gender'],
             int(request.form['weight']),
             int(request.form['height']),
-            int(request.form["activity"]),
+            request.form['activity'],
+            request.form['goals'],
         )
         caloriesfile = open("data/calories.json")
         caloriesjson = json.load(caloriesfile) or []
@@ -218,15 +218,14 @@ def ernaehrung():
         caloriesfile = open("data/calories.json", "wt")
         json.dump(caloriesjson, caloriesfile)
         caloriesfile.close()
-        return render_template("ernaehrung.html", **calories.toJSON())
+        return render_template("ernaehrung.html", **calories.__dict__)
     return render_template(
         'ernaehrung.html',
     )
 
 
-
 class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die Atribute: Age, Gender, Weight und height haben.
-    def __init__(self, user_id, age, gender, weight, height, activity_level):
+    def __init__(self, user_id, age, gender, weight, height, activity_level, goals):
         self.user_id = user_id
         self.age = age
         self.gender = gender
@@ -235,6 +234,8 @@ class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die
         self.bmr = self.get_Bmr()
         self.activity_level = activity_level
         self.calculated_activity = self.calculate_activity()
+        self.goals = goals
+        self.calories = self.gain_or_lose()
 
     def __repr__(self):  # ?
         return f"<User: {self.age}>"
@@ -257,7 +258,7 @@ class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die
         else:
             return None
         # BMR = 665 + (9.6 X 69) + (1.8 x 178) – (4.7 x 27)
-        return c1 + hm + wm - am
+        return int(c1 + hm + wm - am)
 
     def calculate_activity(self):
         activity_level = self.activity_level
@@ -273,23 +274,22 @@ class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die
         elif activity_level == 'extreme':
             activity_level = 1.9 * bmr_result
 
-        return (int(activity_level))
+        return int(activity_level)
 
-    def gain_or_lose(activity_level):
-        goals = input('Do you want to lose, maintain, or gain weight: ')
-
+    def gain_or_lose(self):
+        goals = self.goals
+        calculated_activity = self.calculated_activity
         if goals == 'lose':
-            calories = activity_level - 500
+            calories = calculated_activity - 500
         elif goals == 'maintain':
-            calories = activity_level
+            calories = calculated_activity
         elif goals == 'gain':
             gain = int(input('Gain 1 or 2 pounds per week? Enter 1 or 2: '))
             if gain == 1:
-                calories = activity_level + 500
+                calories = calculated_activity + 500
             elif gain == 2:
-                calories = activity_level + 1000
-
-        print('in order to ', goals, 'weight, your daily caloric goals should be', int(calories), '!')
+                calories = calculated_activity + 1000
+        return int(calories)
 
 
 def jsonToCalories():  # erstellt Liste aus Json Datei (calories)
@@ -308,7 +308,6 @@ def jsonToCalories():  # erstellt Liste aus Json Datei (calories)
             activity_level=item["activity_level"])
         )
     return calories  # ? gibt Calories zurück
-
 
 
 if __name__ == "__main__":  # Verlinkung zur URL /500

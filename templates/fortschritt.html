@@ -29,30 +29,30 @@
         <a>Zeitspanne:</a>
 
         <br><br>
-        <form action="/filterData" method="post">
+        <form method="post">
             <select name="zeitspanne"> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
-
-                <option>Heute</option>
-                <option>7 Tage</option>
-                <option>4 Wochen</option>
-                <option>6 Monate</option>
-                <option>1 Jahr</option>
+<!--Quelle: https://www.w3schools.com/tags/att_option_selected.asp-->
+                <option value="H"{% if zeitspanne == 'H' %} selected{% endif %}>Heute</option>
+                <option value="7"{% if zeitspanne == '7' %} selected{% endif %}>7 Tage</option>
+                <option value="4"{% if zeitspanne == '4' %} selected{% endif %}>4 Wochen</option>
+                <option value="6"{% if zeitspanne == '6' %} selected{% endif %}>6 Monate</option>
+                <option value="1"{% if zeitspanne == '1' %} selected{% endif %}>1 Jahr</option>
 
             </select>
-            <button type="submit">Auswählen</button>
-        </form>
-        <br><br><br>
-        {{ viz_div|safe }}
-        <br><br><br>
-        <a>Super! Du bist auf dem richtigen Weg! Weiter so!</a>
+            <button name="select" type="submit">Auswählen</button>
 
-        <body>
-        <br><br><br>
-        <h5 class="title">
-            Was ist dein Gewicht {{g.user.username}}
-        </h5>
-        <br>
-        <form method="POST">
+            <br><br><br>
+            {{ viz_div|safe }}
+            <br><br><br>
+            <a>Super! Du bist auf dem richtigen Weg! Weiter so!</a>
+
+
+            <br><br><br>
+            <h5 class="title">
+                Was ist dein Gewicht {{g.user.username}}
+            </h5>
+            <br>
+
 
             <input type="text" name="Gewicht" placeholder="Gewicht in kg">
 
@@ -221,11 +221,10 @@
             </select>
             <br><br><br>
 
-            <button type="submit">speichern</button>
+            <button name="save" type="submit">speichern</button>
 
             <img src="{{url}}">
         </form>
-        </body>
         </body>
     </div>
 </main>
