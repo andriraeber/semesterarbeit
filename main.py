@@ -19,7 +19,7 @@ class User:  # Definition eines User, ein User muss die Atribute: ID, Username, 
         self.password = password
         self.targetWeight = targetWeight
 
-    def __repr__(self):  # ?
+    def __repr__(self):  # wird benutzt um vordefinierten String von Objekten zurück zu geben. zB.: print(repr(User))
         return f"<User: {self.username}>"
 
     def toJSON(self):  # Speichert neuen User in Json Datei ab, beginnend mit Indent 4 aufsteigend.
@@ -53,7 +53,7 @@ def login():  # Login eines bestehenden Benutzers
         if request.form.get("registrieren") == "registrieren":
             usersfile = open("data/users.json")
             users = json.load(usersfile)  # Ist der User in der Json Datei vorhanden?
-            usersfile.close()  # ?
+            usersfile.close()
             userId = users["Users"][-1]["id"] + 1  # greiffe letzten Eintrag auf ([-1]) und rechne zu jener ID +1
             newUsername = request.form["username"]
             newPassword = request.form["password"]
@@ -63,13 +63,14 @@ def login():  # Login eines bestehenden Benutzers
             usersfile = open("data/users.json", "w")
             json.dump(users, usersfile)
             print(users)  # ?
-        else:  # ? Tobi ist das wenn wir den User nicht erkennen?
+        else:  # Wenn wir den User nicht erkennen?
             users = jsonToUser()
             session.pop("user_id", None)
             username = request.form["username"]
             password = request.form["password"]
 
-            user = [x for x in users if x.username == username][0]  # Wieso hat es da eine Null?
+            user = [x for x in users if x.username == username][0]  # erstellt array von Usern mit Bedingungen.
+            # 0 braucht man um auf erstes Objekt zuzugreifen.
             if user and user.password == password:
                 session["user_id"] = user.id
                 return redirect(url_for("profile"))
@@ -87,18 +88,18 @@ def profile():  # Aufrufen der Profielseite falls durch Falscheingabe nicht wied
     return render_template("profile.html")
 
 
-def selectAllWeights(conn, user_id):  # gibt uns Gewichte sortiert nach Datum zurück. Conn = Reihe
+def selectAllWeights(conn, user_id):  # gibt uns Gewichte sortiert nach Datum zurück. Conn = Reihe = connect
     cur = conn.cursor()
     cur.execute("SELECT time, weight FROM weights WHERE user_id = ?", (user_id,))
     rows = cur.fetchall()
     results = []
     for row in rows:
         results.append(row)
-    return list(zip(*sorted(results,
-                            key=lambda x: x[1])))  # nimmt tuples auseinander und schreibt die elemente in je eine Liste
+    return list(
+        zip(*sorted(results, key=lambda x: x[1])))  # nimmt tuples auseinander und schreibt elemente in je 1 Liste
 
 
-def createConection(dbFile):  # Was passiert da Tobi? Erzeugt eine Verlinkung mit dem dbFile? Versteh ich nicht.
+def createConection(dbFile):  # Erzeugt eine Verlinkung mit dem dbFile
     conn = None  # https://www.sqlitetutorial.net/sqlite-python/creating-database/
     try:
         conn = sqlite3.connect(dbFile)
@@ -107,8 +108,7 @@ def createConection(dbFile):  # Was passiert da Tobi? Erzeugt eine Verlinkung mi
     return conn
 
 
-def createTable(conn,
-                sqlCommand):  # https://www.sqlitetutorial.net/sqlite-python/creating-database/,  # Was passiert da Tobi? Erzeugt eine Verlinkung mit dem dbFile? Versteh ich nicht.
+def createTable(conn, sqlCommand):  # https://www.sqlitetutorial.net/sqlite-python/creating-database/,#
     try:
         c = conn.cursor()
         c.execute(sqlCommand)
@@ -116,17 +116,17 @@ def createTable(conn,
         print(e)
 
 
-def insertWeight(conn, user_id, time, weight):  # Was passiert da Tobi? Erzeugt eine Verlinkung mit dem dbFile? Versteh ich nicht.
-    sql = "INSERT INTO weights(user_id, time, weight) VALUES(?,?,?)"
-    cur = conn.cursor()
-    cur.execute(sql, (user_id, time, weight)) # sql wie funktioniert dies genau?
+def insertWeight(conn, user_id, time, weight):  # Erzeugt eine Verlinkung mit dem dbFile? Versteh ich nicht.
+    sql = "INSERT INTO weights(user_id, time, weight) VALUES(?,?,?)"  # 3? da man 3 werte sucht
+    cur = conn.cursor()  # conn steht für connect
+    cur.execute(sql, (user_id, time, weight))
     conn.commit()
     return cur.lastrowid
 
 
 def renderFortschritt():
     if "zeitspanne" in request.form:
-        zeitspanne = request.form["zeitspanne"][0]  #defienren des Filters, aus dem Form Zeitspanne. Stimmt das Tobi?
+        zeitspanne = request.form["zeitspanne"][0]  # defienren des Filters, aus dem Form Zeitspanne.
     else:
         zeitspanne = "H"
     conn = createConection("data/gewichtuser.db")
@@ -144,11 +144,11 @@ def renderFortschritt():
         for x in range(0, len(weights[1])):
             item = weights[0][x]
             if datetime.strptime(item, '%Y-%m-%d %H:%M:%S').date() >= switcher[
-                zeitspanne]:  # hinter Y m d muss man noch die Zeitangeben und das ganze als .date() definieren Tobi wie erkläre ich .date()
+                zeitspanne]:  # hinter Y m d muss man noch die Zeitangeben und das ganze als .date() definieren
                 filteredWeights[0].append(weights[1][x])
                 filteredWeights[1].append(item)
     if len(filteredWeights[0]) >= 2:
-        div = viz(filteredWeights)  # was ist ein div und viz genau Tobi? Viz = visualisierung und div konnte ich nicht herausfinden.
+        div = viz(filteredWeights)  # Viz = visualisierung
     else:
         div = "<div></div>"
     return render_template('fortschritt.html', name=g.user.username, viz_div=div, zeitspanne=zeitspanne)
@@ -159,10 +159,10 @@ def viz(data):
     fig.update_traces(textposition="bottom right")
     users = jsonToUser()
     targetWeight = [x for x in users if x.username == g.user.username][0].targetWeight
-    fig.add_trace(  # fühgt in fig ein....
+    fig.add_trace(  # fühgt in fig ein.
         go.Scatter(
             x=[data[1][0], data[1][-1]],
-            # dubble linked zwei listen wenn wir bei -1 sind sind wir beim letzten Element (-1 holt uns letztes ELement)
+            # dubble linked zwei listen wenn wir bei -1 sind, sind wir beim letzten Element (-1 holt letztes ELement)
             y=[targetWeight, targetWeight],
             mode="lines",
             line=go.scatter.Line(color="gray"),
@@ -174,7 +174,7 @@ def viz(data):
 
 
 @app.route("/fortschritt", methods=["GET", "POST"])
-def fortschritt():  # erstellen einer neuen Table , falls noch keine vorhanden und abspeichern des Eintrages als string
+def fortschritt():  # erstellen einer neuen Table im sqlcode, falls noch keine vorhanden und speichert Eintrag als str..
     createWeightTable = """ CREATE TABLE IF NOT EXISTS weights(
                                         id integer PRIMARY KEY,
                                         user_id integer NOT NULL,
@@ -194,7 +194,7 @@ def fortschritt():  # erstellen einer neuen Table , falls noch keine vorhanden u
     return renderFortschritt()
 
 
-@app.route("/ernaehrung", methods=["GET", "POST"])
+@app.route("/ernaehrung", methods=["GET", "POST"])  # URL für die Seite ernaehrung. Holt aus Calories.json alle Infos.
 def ernaehrung():
     if request.method == "POST":
         print(request.form)
@@ -220,7 +220,7 @@ def ernaehrung():
     )
 
 
-class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die Atribute: Age, Gender, Weight und height haben.
+class Calories:  # Definition der Klasse Calories. Bei weiterem Verwenden besitz sie alle Funktionen in der Klammer.
     def __init__(self, user_id, age, gender, weight, height, activity_level, goals):
         self.user_id = user_id
         self.age = age
@@ -233,14 +233,11 @@ class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die
         self.goals = goals
         self.calories = self.gain_or_lose()
 
-    def __repr__(self):  # ?
-        return f"<User: {self.age}>"
-
-    def toJSON(self):  # Speichert neuen User in Json Datei ab, beginnend mit Indent 4 aufsteigend.
+    def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
-    def get_Bmr(self):
+    def get_Bmr(self):  # definition des BMR, berechnung m/f
         if self.gender == 'male':
             c1 = 66
             hm = 6.2 * self.height
@@ -255,7 +252,7 @@ class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die
             return None
         return int(c1 + hm + wm - am)
 
-    def calculate_activity(self):
+    def calculate_activity(self):  # definition der Aktivität mit dem BMR von oben
         activity_level = self.activity_level
         bmr_result = self.bmr
         if activity_level == 'none':
@@ -271,7 +268,7 @@ class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die
 
         return int(activity_level)
 
-    def gain_or_lose(self):
+    def gain_or_lose(self):  # berechnung der Goals, Zu und Abnahme, Halten
         goals = self.goals
         calculated_activity = self.calculated_activity
         if goals == 'lose':
@@ -279,7 +276,7 @@ class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die
         elif goals == 'maintain':
             calories = calculated_activity
         elif goals == 'gain':
-                calories = calculated_activity + 500
+            calories = calculated_activity + 500
         return int(calories)
 
 
@@ -291,7 +288,7 @@ def jsonToCalories():  # erstellt Liste aus Json Datei (calories)
 
     for item in caloriesjson["Calories"]:  # Speichert neuen User in Json Datei ab für spätere Wiederverwendung
         calories.append(Calories(
-            usere_ide=item["user_id"], # braucht es eigentlich nicht, Calories() würde reichen.
+            usere_ide=item["user_id"],  # braucht es eigentlich nicht, Calories() würde reichen.
             age=item["Age"],
             gender=item["Geschlecht"],
             weight=item["Gewicht"],

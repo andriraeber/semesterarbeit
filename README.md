@@ -52,7 +52,7 @@ Abnahme oder Gewicht halten) sowie der sportliche Betätigung.
 
 - definitives Ablaufdiagramm (18.06.22).
 
-
+![img_2.png](img_2.png)
 
 
 
