@@ -1,12 +1,8 @@
 from flask import Flask, render_template, url_for, request, session, redirect, g
-from flask import Response
 import json
 import sqlite3
 from sqlite3 import Error
 from datetime import datetime
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-import io
 import plotly.express as px
 from plotly.offline import plot
 import plotly.graph_objects as go
@@ -257,7 +253,6 @@ class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die
             am = 4.7 * self.age
         else:
             return None
-        # BMR = 665 + (9.6 X 69) + (1.8 x 178) – (4.7 x 27)
         return int(c1 + hm + wm - am)
 
     def calculate_activity(self):
@@ -284,11 +279,7 @@ class Calories:  # Definition einer Calorie eingabe, ein Calorieeingabe muss die
         elif goals == 'maintain':
             calories = calculated_activity
         elif goals == 'gain':
-            gain = int(input('Gain 1 or 2 pounds per week? Enter 1 or 2: '))
-            if gain == 1:
                 calories = calculated_activity + 500
-            elif gain == 2:
-                calories = calculated_activity + 1000
         return int(calories)
 
 
@@ -300,14 +291,14 @@ def jsonToCalories():  # erstellt Liste aus Json Datei (calories)
 
     for item in caloriesjson["Calories"]:  # Speichert neuen User in Json Datei ab für spätere Wiederverwendung
         calories.append(Calories(
-            usere_ide=item["user_id"],
+            usere_ide=item["user_id"], # braucht es eigentlich nicht, Calories() würde reichen.
             age=item["Age"],
             gender=item["Geschlecht"],
             weight=item["Gewicht"],
             height=item["Grösse"],
             activity_level=item["activity_level"])
         )
-    return calories  # ? gibt Calories zurück
+    return calories  # gibt Calories zurück
 
 
 if __name__ == "__main__":  # Verlinkung zur URL /500

@@ -37,9 +37,9 @@
             <br><br><br>
             <a>Dein Grundumsatz (BMR) in Kalorien pro Tag, beträgt:</a> {{ bmr }}
             <br><br>
-            <button type="submit">speichern</button>
+
             <br><br><br>
-            <a>Was ist dein Aktivitätslevel? none, light, moderate, heavy, or extreme?"<a>
+            <a>Was ist dein Aktivitätslevel? none, light, moderate, heavy, oder extreme?"<a>
                 <select name="activity"> <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
 
                     <option{% if activity_level == 'none' %} selected{% endif %}>none</option>
@@ -53,9 +53,9 @@
                 <a>Dein Grundumsatz (BMR) inklusive deiner Aktivität in Kalorien pro Tag, beträgt:</a> {{
                 calculated_activity }}
                 <br><br>
-                <button type="submit">speichern</button>
+
                 <br><br><br>
-                <a>Do you want to lose, maintain, or gain weight?"</a>
+                <a>Willst du Abnehmen (lose), dein Gewicht halten (maintain), oder Zunehmen (gain)?"</a>
                 <select name="goals">
                     <!--Quelle: https://www.edv-lehrgang.de/auswahlmenue-dropdownliste-in-html/-->
 

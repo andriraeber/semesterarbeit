@@ -21,39 +21,48 @@ Stand 14.06.20-->
 #### Problembeschreibung/Motivation
 
 Jeder der viel Sport macht und täglich auf sein Gewicht und seine Kalorieneinnahme achtet, weiss wie aufwändig dies ist.
-Es ist schwierig, den Überblick zu behalten betreffend Gewicht und Kalorieneinnahme und -verbrauch. Deshalb ist es 
+Es ist schwierig, den Überblick zu behalten betreffend Gewicht, Kalorieneinnahme und -verbrauch. Deshalb ist es 
 angenehm, die Vor- und Rückschritte in einer App festhalten zu können und automatisch den Gesamtüberblick zu behalten.
-Deshalb kann man in der MyBody Fitnessapp ganz einfach sein Zielgewicht erfassen und täglich sein Gewicht eintragen um
-seinen Vor- oder Rückschritt in Richtung Zielgewicht zu erkennen. Zudem ist es möglich seinen Grundumsatz an Kalorien zu
-berechnen sowie diesen an seinen Aktivitätslevel und sein Ziel(Zunahme oder Abnahme) anzupassen.
+Deshalb kann man in der MyBody Fitnessapp ganz einfach sein Zielgewicht erfassen und täglich sein Gewicht eintragen, um
+die Gewichtsentwicklung in Richtung Zielgewicht festzuhalten. Zudem ist es möglich seinen Grundumsatz an Kalorien zu
+berechnen sowie diesen an seinen Aktivitätslevel und die gesteckten Ziele(Zunahme oder Abnahme) anzupassen.
 
 #### Betrieb
 
-- Welche zusätzliche Pakete müssen bei Bedarf installiert werden. (Muss im Normalfall nicht beachtet werden. Python muss
-  nicht erwähnt werden, da das bei einem Python Projekt impliziert ist.)
-- 
-- Flask, sqlite3, datetime, 
-- 
-- Was muss man bei der Ausführung beachten. Was muss eventuell davor noch gemacht werden.
-- Welch Datei muss ausgeführt werden
+Für die Inbetriebnahme der Applikation wird zusätzlich zu Phyton noch Flask, sqlite3, datetime, benötigt. 
+
+Wenn man den Code in Python laufenlässt, kann man über den Internetbrowser (http://127.0.0.1:5000/), welcher einem
+angezeigt wird auf die Loginseite zu greiffen. Wenn man sich Registriert kann man im Feld Zielgewicht sein angestrebtes
+Wunschgewicht eingeben. Achtung dies ist nur zu Beginn möglich.
 
 #### Benutzung
 
-- Wie wird das Projekt benutzt
-- Welche Optionen oder auch Spezialitäten existieren
+Die Applikation kann nach dem erfassen eines Wunschegwichtes benutzt werden um dieses zu erreichen. EInerseits kann man
+täglich sein gewogenes Gewicht eintragen und bekommt so eine Statistische Auswertung, wie sich sein Gewicht entwickelt. 
+Wichtig zu erwähnen ist, dass der Anwender die Möglichkeit hat das Zeitfenster des Überblickes selbst einzustellen je
+nachdem welche Zeitspanne einem interessiert.
+Zusätzlich ist es möglich, dass man seinen Kalorien umsatz berechnet inklusive der Berücksichtigung seines Zieles (ZU-,
+Abnahme oder Gewicht halten) sowie der sportliche Betätigung.
 
 #### Architektur
 
-- Hier bei Bedarf eine kurze Beschreibung des Ablaufs des Programms auf Code Ebene z.B. als Ablaufdiagramm.
-**Mokup**
+- erster Mokup (09.04.22) in Figma erstellt und definiert, welche Teile der Applikation wie zusammen hängen.
 
-Den Mokup habe ich in Figma erstellt und definiert, welche Teile der Applikation wie zusammen hängen.
+![img_1.png](img_1.png)
 
-![Mokup Stand 090422](../../FS_22/Prog2/MokupBF_090422.png "Mokup")
+- definitives Ablaufdiagramm (18.06.22).
+
+
+
+
+
 #### Ungelöste/unbearbeitete Probleme
 
-- Was wurde nicht gelöst
-- Welche Verbesserungen könnten noch gemacht werden.
+- Momentan kann man die eingetragenen sportlichen Aktivitäten nicht abspeichern und aufrechnen. Man ist gezwungen die 
+verbrauchten Kalorien extern im Überblick zu behalten.
+- Eine wesentliche Verbesserung wäre, wenn die oben genannten externen Rechnungen betreffend Kalorieneinahme ebenfalls
+- im system abgebildet werden könnten. Sowie im ersten Mokup die Erfassung der Wassereinnahme und die Erfassung von
+- sportlichen Aktivitäten ergänzt und ausgearbeitet werden würden.
 
 
 
